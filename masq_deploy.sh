@@ -3,21 +3,22 @@
 #author: elmerfdz
 
 #VARS
-version=v1.0
+version=v1.2
 CURRENT_DIR=`dirname $0`
 arch_detect=$(uname -m)
-docker_cont_data"=/opt/docker/dnsmasq/data/"
+docker_cont_data="/opt/docker/dnsmasq/data"
 
 SET_HOSTNAME_MOD(){ 
     hostnamectl set-hostname $pi_hostname
 }
 
 UPDATE_OS_MOD(){
-    sudo apt-get update && sudo apt-get upgrade -y
-    sudo apt-get update && sudo apt-get dist-upgrade -y
+    apt-get update && apt-get upgrade -y
+    #apt-get update && apt-get dist-upgrade -y
 }
 
 LIBERATING_PORT_53(){
+    echo
     echo -e "\e[1;36m> Installing RESOLVCONF\e[0m" 
         apt install resolvconf -y
     echo -e "\e[1;36m> Adding LOCAL and CLOUDFLARE servers as NAMESERVERS\e[0m" 
@@ -32,6 +33,7 @@ LIBERATING_PORT_53(){
     echo -e "\e[1;36m> Restarting RESOLVCONF and SYSTEMD-RESOLVED services\e[0m"           
         service resolvconf restart
         systemctl restart systemd-resolved
+    echo    
 }
 
 ARCH_TYPE_DECIDER(){
@@ -48,7 +50,7 @@ ARCH_TYPE_DECIDER(){
 }
 
 DOCKER_INSTALL(){
-    sudo apt-get update && sudo apt-get upgrade -y
+    sudo apt-get update
     sudo apt-get -y install \
     apt-transport-https \
     ca-certificates \
@@ -57,12 +59,12 @@ DOCKER_INSTALL(){
     software-properties-common
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
     ARCH_TYPE_DECIDER
-    sudo add-apt-repository \    
+    sudo add-apt-repository \
         "deb [arch=$arch_type] https://download.docker.com/linux/ubuntu \
         $(lsb_release -cs) \
         stable"
     apt-get update
-    apt-get install docker-ce docker-ce-cli containerd.io
+    apt-get -y install docker-ce docker-ce-cli containerd.io
     usermod -aG docker ${USER}    
 }
 

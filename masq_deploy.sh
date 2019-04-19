@@ -3,7 +3,7 @@
 #author: elmerfdz
 
 #VARS
-version=v1.4
+version=v1.4-1
 CURRENT_DIR=`dirname $0`
 arch_detect=$(uname -m)
 docker_cont_data="/opt/docker/dnsmasq/data"
@@ -87,7 +87,7 @@ DEPLOY_DNSMASQ_CONTAINER(){
     --name dnsmasq \
     -d \
     -p 53:53/udp \
-    -p 5380:8080 \
+    -p $dnsmasq_gui_port:8080 \
     -v /opt/docker/dnsmasq/data/dnsmasq.conf:/etc/dnsmasq.conf \
     --log-opt "max-size=100m" \
     -e "HTTP_USER=$dnsmasq_gui_user" \

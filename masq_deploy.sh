@@ -13,10 +13,12 @@ SET_HOSTNAME_MOD(){
 }
 
 UPDATE_OS_MOD(){
+    echo
     apt-get update && apt-get upgrade -y
 }
 
 POST_INSTALL_MOD(){
+    echo
     apt-get update && apt-get dist-upgrade -y
 }
 

@@ -3,7 +3,7 @@
 #author: elmerfdz
 
 #VARS
-version=v1.4-2
+version=v1.4-3
 CURRENT_DIR=`dirname $0`
 arch_detect=$(uname -m)
 docker_cont_data="/opt/docker/dnsmasq/data"
@@ -221,11 +221,15 @@ read_options(){
 
 
 	 	"3")
-	        	POST_INSTALL_MOD
+	        POST_INSTALL_MOD
+            echo -e "\e[1;36m> \e[0mPress any key to return to menu..."
+			read
+			chmod +x $BASH_SOURCE
+			exec ./masq_deploy.sh	                
 		;;
 
     	"4")
-	        	dnsmasq_script_updater_mod
+	        dnsmasq_script_updater_mod
 		;;
 
 

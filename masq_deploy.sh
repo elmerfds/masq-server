@@ -3,7 +3,7 @@
 #author: elmerfdz
 
 #VARS
-version=v1.4-1
+version=v1.4-2
 CURRENT_DIR=`dirname $0`
 arch_detect=$(uname -m)
 docker_cont_data="/opt/docker/dnsmasq/data"
@@ -14,7 +14,10 @@ SET_HOSTNAME_MOD(){
 
 UPDATE_OS_MOD(){
     apt-get update && apt-get upgrade -y
-    #apt-get update && apt-get dist-upgrade -y
+}
+
+POST_INSTALL_MOD(){
+    apt-get update && apt-get dist-upgrade -y
 }
 
 LIBERATING_PORT_53(){
@@ -173,8 +176,9 @@ show_menus()
 		echo
 		echo "| 1.| Full Install  " 
 		echo "| 2.| Docker + DNSMasq Container Deploy				  "
-		echo "| 3.| OUI Auto Updater				  "        
-		echo "| 4.| Quit 					  "
+		echo "| 3.| Post Install				  "                
+		echo "| 4.| OUI Auto Updater				  "        
+		echo "| 5.| Quit 					  "
 		echo
 		echo
 		printf "\e[1;36m> Enter your choice: \e[0m"
@@ -215,10 +219,15 @@ read_options(){
 
 
 	 	"3")
+	        	POST_INSTALL_MOD
+		;;
+
+    	"4")
 	        	dnsmasq_script_updater_mod
 		;;
 
-		"4")
+
+		"5")
 			exit 0
 		;;
 

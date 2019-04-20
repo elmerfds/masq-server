@@ -3,7 +3,7 @@
 #author: elmerfdz
 
 #VARS
-version=v1.4-5
+version=v1.4-6
 CURRENT_DIR=`dirname $0`
 arch_detect=$(uname -m)
 docker_cont_data="/opt/docker/dnsmasq/data"
@@ -124,6 +124,7 @@ MAINT_CONTAINER_PACK(){
     -e INTERVAL=300 \
     -e LOG_LEVEL=info \
     -e SELF_UPDATE=true \
+    -e TZ="Europe/London" \
     --restart always \
     pyouroboros/ouroboros
 }
@@ -206,9 +207,9 @@ show_menus()
 		echo "| 1.| Full Install  " 
 		echo "| 2.| Docker + DNSMasq Container Deploy				  "
 		echo "| 3.| Post Install				  " 
-		echo "| 4.| Post Install - [Netdata/Ouroboros deploy]		  "                           
+		#echo "| 4.| Post Install - [Netdata/Ouroboros deploy]		  "                           
 		echo "| u.| Auto Updater				  "        
-		echo "| 5.| Quit 					  "
+		echo "| q.| Quit 					  "
 		echo
 		echo
 		printf "\e[1;36m> Enter your choice: \e[0m"
@@ -271,7 +272,7 @@ read_options(){
 		;;
 
 
-		"5")
+		"q")
 			exit 0
 		;;
 

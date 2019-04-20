@@ -3,7 +3,7 @@
 #author: elmerfdz
 
 #VARS
-version=v1.4-3
+version=v1.4-5
 CURRENT_DIR=`dirname $0`
 arch_detect=$(uname -m)
 docker_cont_data="/opt/docker/dnsmasq/data"
@@ -86,7 +86,7 @@ DEPLOY_DNSMASQ_CONTAINER(){
     sudo mkdir $docker_cont_data -p
     cp $CURRENT_DIR/dnsmasq.conf $docker_cont_data
     echo
-    echo -e "\e[1;36m> Pulling DNSMASQ container\e[0m"
+    echo -e "\e[1;36m> Pulling & deploying DNSMASQ container\e[0m"
     echo     
     docker run \
     --name dnsmasq \
@@ -99,6 +99,33 @@ DEPLOY_DNSMASQ_CONTAINER(){
     -e "HTTP_PASS=$dnsmasq_gui_pwd" \
     --restart always \
     $repo_container
+}
+
+MAINT_CONTAINER_PACK(){
+    echo
+    echo -e "\e[1;36m> Pulling & deploying NETDATA container\e[0m"
+    echo       
+    docker run -d --name=netdata \
+    -p 19999:19999 \
+    -v /proc:/host/proc:ro \
+    -v /sys:/host/sys:ro \
+    -v /var/run/docker.sock:/var/run/docker.sock:ro \
+    --cap-add SYS_PTRACE \
+    --security-opt apparmor=unconfined \
+    --restart always \
+    netdata/netdata
+
+    echo
+    echo -e "\e[1;36m> Pulling & deploying OUROBOROS container\e[0m"
+    echo    
+    docker run -d --name ouroboros \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -e CLEANUP=true \
+    -e INTERVAL=300 \
+    -e LOG_LEVEL=info \
+    -e SELF_UPDATE=true \
+    --restart always \
+    pyouroboros/ouroboros
 }
 
 #OUI script Updater
@@ -178,8 +205,9 @@ show_menus()
 		echo
 		echo "| 1.| Full Install  " 
 		echo "| 2.| Docker + DNSMasq Container Deploy				  "
-		echo "| 3.| Post Install				  "                
-		echo "| 4.| OUI Auto Updater				  "        
+		echo "| 3.| Post Install				  " 
+		echo "| 4.| Post Install - [Netdata deploy]		  "                           
+		echo "| u.| Auto Updater				  "        
 		echo "| 5.| Quit 					  "
 		echo
 		echo
@@ -228,7 +256,7 @@ read_options(){
 			exec ./masq_deploy.sh	                
 		;;
 
-    	"4")
+    	"u")
 	        dnsmasq_script_updater_mod
 		;;
 

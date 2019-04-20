@@ -206,7 +206,7 @@ show_menus()
 		echo "| 1.| Full Install  " 
 		echo "| 2.| Docker + DNSMasq Container Deploy				  "
 		echo "| 3.| Post Install				  " 
-		echo "| 4.| Post Install - [Netdata deploy]		  "                           
+		echo "| 4.| Post Install - [Netdata/Ouroboros deploy]		  "                           
 		echo "| u.| Auto Updater				  "        
 		echo "| 5.| Quit 					  "
 		echo
@@ -255,6 +255,16 @@ read_options(){
 			chmod +x $BASH_SOURCE
 			exec ./masq_deploy.sh	                
 		;;
+
+	 	"4")
+            POST_INSTALL_MOD
+	        MAINT_CONTAINER_PACK
+            echo -e "\e[1;36m> \e[0mPress any key to return to menu..."
+			read
+			chmod +x $BASH_SOURCE
+			exec ./masq_deploy.sh	                
+		;;
+
 
     	"u")
 	        dnsmasq_script_updater_mod

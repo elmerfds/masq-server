@@ -100,10 +100,9 @@ DOCKER_COMPOSE_INSTALL(){
     echo     
     sudo apt-get update
     sudo apt-get -y install \
-    sudo apt-get install libffi-dev libssl-dev \
-    sudo apt-get install -y python3 python3-pip \
-    sudo apt-get remove python-configparser \
-    gnupg-agent \
+    sudo apt-get install libffi-dev libssl-dev
+    sudo apt-get install -y python3 python3-pip
+    sudo apt-get remove python-configparser
     sudo pip3 install docker-compose
     source ~/.bashrc
 }
@@ -140,7 +139,7 @@ DOCKER_COMPOSE_ENV(){
 SET_ALIAS(){
     echo "alias dcup='docker-compose -f /opt/docker/compose/dcompose.yml up -d'" >> ~/.bashrc
     echo "alias dcupedit='sudo nano /opt/docker/compose/dcompose.yml'" >> ~/.bashrc
-    echo "sudo bash /DietPi/dietpi/dietpi-cpuinfo" >> ~/.bashrc
+    echo "alias cpu='sudo bash /DietPi/dietpi/dietpi-cpuinfo'" >> ~/.bashrc
     source ~/.bashrc
 }
 

@@ -1,0 +1,45 @@
+version: "3.6"
+services:
+    portainer:
+        container_name: portainer
+        hostname: portainer
+        image: portainer/portainer
+        restart: unless-stopped
+        ports:
+            - 9000:9000
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - ${DOCKER_DATA}/portainer/data:/data
+            - ${DOCKER_DATA}/portainer/shared:/shared
+    ouroboros:
+        container_name: ouroboros
+        hostname: ouroboros
+        image: pyouroboros/ouroboros:1.4.1-arm64
+        environment:
+            - CLEANUP=true
+            - INTERVAL=300
+            - LOG_LEVEL=info
+            - SELF_UPDATE=true
+            - IGNORE=bind
+            - TZ=${TZ}
+            #- NOTIFIERS=
+        restart: unless-stopped
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+    bind:
+        container_name: bind
+        hostname: bind
+        network_mode: bridge
+        image: eafxx/bind:arm64
+        restart: unless-stopped
+        ports:
+            - "53:53/tcp"
+            - "53:53/udp"
+            - 10000:10000/tcp
+        volumes:
+            - ${DOCKER_DATA}/bind/data:/data
+        environment:
+            - WEBMIN_ENABLED=true
+            - WEBMIN_INIT_SSL_ENABLED=false
+            - ROOT_PASSWORD=temppass
+            - TZ=Europe/London

@@ -6,7 +6,18 @@
 version=v1.4-6
 CURRENT_DIR=`dirname $0`
 arch_detect=$(uname -m)
-docker_cont_data="/opt/docker/dnsmasq/data"
+tzone=$(cat /etc/timezone)
+uid=$(id -u $(logname))
+docker_dir='/opt/docker'
+docker_data='/opt/docker/data'
+docker_compose='/opt/docker/compose'
+docker_cont_data="/opt/docker/data"
+CURRENT_DIR=`dirname $0`
+env_file="/etc/environment"
+
+#env vars
+envvarname=('PUID' 'GUID' 'TZ' 'DOCKER_ROOT' 'DOCKER_DATA' 'DOCKER_COMPOSE')
+envvarout=('uid' 'ugp' 'tzone' 'docker_dir' 'docker_data' 'docker_compose')
 
 SET_HOSTNAME_MOD(){ 
     hostnamectl set-hostname $pi_hostname
@@ -48,15 +59,15 @@ ARCH_TYPE_DECIDER(){
     if [ "$arch_detect" == "aarch64" ]
 	then
         arch_type='arm64'
-        repo_container='eafxx/dnsmasq'
+        repo_container='eafxx/bind:arm64'
     elif [ "$arch_detect" == "x86_64" ]
     then
         arch_type='amd64'
-        repo_container='jpillora/dnsmasq'
+        repo_container='eafxx/bind'
     elif [ "$arch_detect" == "armv7l" ]
     then
         arch_type='armhf'  
-        repo_container='eafxx/dnsmasq'
+        repo_container='eafxx/bind:armhf'
     fi     
 }
 
@@ -79,26 +90,58 @@ DOCKER_INSTALL(){
         stable"
     apt-get update
     apt-get -y install docker-ce docker-ce-cli containerd.io
-    usermod -aG docker ${USER}    
+    usermod -aG docker ${USER}
+    ugp=$(cut -d: -f3 < <(getent group docker))
 }
 
-DEPLOY_DNSMASQ_CONTAINER(){
-    sudo mkdir $docker_cont_data -p
-    cp $CURRENT_DIR/dnsmasq.conf $docker_cont_data
+DOCKER_COMPOSE_INSTALL(){
     echo
-    echo -e "\e[1;36m> Pulling & deploying DNSMASQ container\e[0m"
+    echo -e "\e[1;36m> Installing DOCKER-COMPOSE\e[0m"
     echo     
-    docker run \
-    --name dnsmasq \
-    -d \
-    -p 53:53/udp \
-    -p $dnsmasq_gui_port:8080 \
-    -v /opt/docker/dnsmasq/data/dnsmasq.conf:/etc/dnsmasq.conf \
-    --log-opt "max-size=100m" \
-    -e "HTTP_USER=$dnsmasq_gui_user" \
-    -e "HTTP_PASS=$dnsmasq_gui_pwd" \
-    --restart always \
-    $repo_container
+    sudo apt-get update
+    sudo apt-get -y install \
+    sudo apt-get install libffi-dev libssl-dev \
+    sudo apt-get install -y python3 python3-pip \
+    sudo apt-get remove python-configparser \
+    gnupg-agent \
+    sudo pip3 install docker-compose
+    apt-get update
+}
+
+TZ_LOC_SET(){
+    pip3 install -U tzupdate
+    sudo ~/.local/bin/tzupdate
+}
+
+DOCKER_COMPOSE_ENV(){
+    echo
+    echo -e "\e[1;36m> Setting Docker environment variables...\e[0m"
+    echo
+    for ((i=0; i < "${#envvarname[@]}"; i++)) 
+    do
+        echo -e "\e[1;36m> Adding ${envvarname[$i]}...\e[0m"
+        echo
+        if grep -Fxq "${envvarname[$i]}=${envvarout[$i]}" $env_file
+        then
+            echo "${envvarname[$i]} already exists"
+        else
+        if [ ! -z "${envvarname[$i]}" ]
+        then
+                echo "${envvarname[$i]}=${envvarout[$i]}" >> $env_file
+        fi    
+    fi
+        echo
+    done                
+    #Create docker directories      
+    mkdir -p /opt/docker/{data,build,compose,setup}   
+    cp $CURRENT_DIR/config/compose/dcompose.yml  $docker_compose
+}
+
+SET_ALIAS(){
+echo "alias dcup='docker-compose -f /opt/docker/compose/dcompose.yml up -d'" >> ~/.bashrc
+echo "alias dcupedit='sudo nano /opt/docker/compose/dcompose.yml'" >> ~/.bashrc
+echo "sudo bash /DietPi/dietpi/dietpi-cpuinfo" >> ~/.bashrc
+source ~/.bashrc
 }
 
 MAINT_CONTAINER_PACK(){
@@ -202,7 +245,7 @@ SCRIPT_CONTROLER_MOD(){
 show_menus() 
 	{
 		echo
-		echo -e " 	  \e[1;36m|DNSMASQ - DEPLOY $version|  \e[0m"
+		echo -e " 	  \e[1;36m|HomeDNS - DEPLOY $version|  \e[0m"
 		echo
 		echo "| 1.| Full Install  " 
 		echo "| 2.| Docker + DNSMasq Container Deploy				  "
@@ -225,7 +268,11 @@ read_options(){
             UPDATE_OS_MOD
             LIBERATING_PORT_53
             DOCKER_INSTALL
-            DEPLOY_DNSMASQ_CONTAINER
+            DOCKER_COMPOSE_INSTALL
+            TZ_LOC_SET
+            DOCKER_COMPOSE_ENV 
+            SET_ALIAS           
+            #DEPLOY_DNSMASQ_CONTAINER
 			unset local_domain
             echo
             echo -e "\e[1;36m> \e[0mPress any key to return to menu..."
@@ -239,6 +286,7 @@ read_options(){
 			SCRIPT_CONTROLER_MOD
             UPDATE_OS_MOD
             DOCKER_INSTALL
+            DOCKER_COMPOSE_INSTALL
             DEPLOY_DNSMASQ_CONTAINER
 			unset local_domain
             echo

@@ -105,7 +105,7 @@ DOCKER_COMPOSE_INSTALL(){
     sudo apt-get remove python-configparser \
     gnupg-agent \
     sudo pip3 install docker-compose
-    apt-get update
+    source ~/.bashrc
 }
 
 TZ_LOC_SET(){

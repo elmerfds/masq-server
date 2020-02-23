@@ -144,35 +144,6 @@ echo "sudo bash /DietPi/dietpi/dietpi-cpuinfo" >> ~/.bashrc
 source ~/.bashrc
 }
 
-MAINT_CONTAINER_PACK(){
-    echo
-    echo -e "\e[1;36m> Pulling & deploying NETDATA container\e[0m"
-    echo       
-    docker run -d --name=netdata \
-    -p 19999:19999 \
-    -v /proc:/host/proc:ro \
-    -v /sys:/host/sys:ro \
-    -v /var/run/docker.sock:/var/run/docker.sock:ro \
-    --cap-add SYS_PTRACE \
-    --security-opt apparmor=unconfined \
-    --restart always \
-    netdata/netdata
-
-    echo
-    echo -e "\e[1;36m> Pulling & deploying OUROBOROS container\e[0m"
-    echo    
-    docker run -d --name ouroboros \
-    -v /var/run/docker.sock:/var/run/docker.sock \
-    -e CLEANUP=true \
-    -e INTERVAL=300 \
-    -e LOG_LEVEL=info \
-    -e SELF_UPDATE=true \
-    -e TZ="Europe/London" \
-    --restart always \
-    pyouroboros/ouroboros
-}
-
-#OUI script Updater
 dnsmasq_script_updater_mod()
 	{
 		echo
@@ -221,26 +192,8 @@ SCRIPT_CONTROLER_MOD(){
         read -r local_domain 
         local_domain=${local_domain:-home.lab} 
         echo     
-    fi    
-    
-    echo -e "\e[1;36m## DNSMASQ GUI CONFIG\e[0m" 
-    echo 
-    echo -e "\e[1;36m> Enter a username for DNSMASQ GUI (default user: foo)\e[0m" 
-    read -r dnsmasq_gui_user 
-    dnsmasq_gui_user=${dnsmasq_gui_user:-foo} 
-    echo 
-
-    echo -e "\e[1;36m> Enter a password for DNSMASQ GUI (default password: bar)\e[0m" 
-    read -r dnsmasq_gui_pwd 
-    dnsmasq_gui_pwd=${dnsmasq_gui_pwd:-bar} 
-    echo
-
-    echo -e "\e[1;36m> Enter PORT number for DNSMASQ GUI (default port: 5380)\e[0m" 
-    read -r dnsmasq_gui_port 
-    dnsmasq_gui_port=${dnsmasq_gui_port:-5380} 
-    echo             
+    fi              
 }
-
 
 show_menus() 
 	{

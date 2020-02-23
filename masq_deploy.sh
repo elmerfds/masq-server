@@ -138,10 +138,10 @@ DOCKER_COMPOSE_ENV(){
 }
 
 SET_ALIAS(){
-echo "alias dcup='docker-compose -f /opt/docker/compose/dcompose.yml up -d'" >> ~/.bashrc
-echo "alias dcupedit='sudo nano /opt/docker/compose/dcompose.yml'" >> ~/.bashrc
-echo "sudo bash /DietPi/dietpi/dietpi-cpuinfo" >> ~/.bashrc
-source ~/.bashrc
+    echo "alias dcup='docker-compose -f /opt/docker/compose/dcompose.yml up -d'" >> ~/.bashrc
+    echo "alias dcupedit='sudo nano /opt/docker/compose/dcompose.yml'" >> ~/.bashrc
+    echo "sudo bash /DietPi/dietpi/dietpi-cpuinfo" >> ~/.bashrc
+    source ~/.bashrc
 }
 
 dnsmasq_script_updater_mod()

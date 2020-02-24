@@ -107,9 +107,9 @@ DOCKER_COMPOSE_INSTALL(){
 }
 
 TZ_LOC_SET(){
-    pip3 install -U tzupdate
-    sudo ~/.local/bin/tzupdate
-    source ~/.bashrc
+    pip3 install -U tzupdate --user
+    ~/.local/bin/tzupdate
+    source ~/.bashrc    
 }
 
 DOCKER_COMPOSE_ENV(){

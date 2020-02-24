@@ -103,6 +103,7 @@ DOCKER_COMPOSE_INSTALL(){
     apt-get install -y python3 python3-pip
     apt-get remove python-configparser
     pip3 install docker-compose
+    usermod -aG docker ${USER}
     source ~/.bashrc
 }
 

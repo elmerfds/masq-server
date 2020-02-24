@@ -17,7 +17,7 @@ env_file="/etc/environment"
 
 #env vars
 envvarname=('PUID' 'GUID' 'TZ' 'DOCKER_ROOT' 'DOCKER_DATA' 'DOCKER_COMPOSE')
-envvarout=('uid' 'ugp' 'tzone' 'docker_dir' 'docker_data' 'docker_compose')
+envvarout=($uid $ugp $tzone $docker_dir $docker_data $docker_compose)
 
 SET_HOSTNAME_MOD(){ 
     hostnamectl set-hostname $pi_hostname
@@ -91,31 +91,37 @@ DOCKER_INSTALL(){
     apt-get update
     apt-get -y install docker-ce docker-ce-cli containerd.io
     usermod -aG docker ${USER}
-    ugp=$(cut -d: -f3 < <(getent group docker))
 }
 
 DOCKER_COMPOSE_INSTALL(){
     echo
     echo -e "\e[1;36m> Installing DOCKER-COMPOSE\e[0m"
     echo     
-    sudo apt-get update
-    sudo apt-get -y install \
-    sudo apt-get install libffi-dev libssl-dev
-    sudo apt-get install -y python3 python3-pip
-    sudo apt-get remove python-configparser
-    sudo pip3 install docker-compose
+    apt-get update
+    apt-get -y install
+    apt-get install libffi-dev libssl-dev
+    apt-get install -y python3 python3-pip
+    apt-get remove python-configparser
+    pip3 install docker-compose
     source ~/.bashrc
 }
 
 TZ_LOC_SET(){
     pip3 install -U tzupdate
     sudo ~/.local/bin/tzupdate
+    source ~/.bashrc
 }
 
 DOCKER_COMPOSE_ENV(){
+    #env vars
+    get_ugp=$(cut -d: -f3 < <(getent group docker))
+    ugp=$get_ugp
+    envvarname=('PUID' 'GUID' 'TZ' 'DOCKER_ROOT' 'DOCKER_DATA' 'DOCKER_COMPOSE')
+    envvarout=($uid $get_ugp $tzone $docker_dir $docker_data $docker_compose)
     echo
     echo -e "\e[1;36m> Setting Docker environment variables...\e[0m"
     echo
+    ugp=$(cut -d: -f3 < <(getent group docker))
     for ((i=0; i < "${#envvarname[@]}"; i++)) 
     do
         echo -e "\e[1;36m> Adding ${envvarname[$i]}...\e[0m"
@@ -130,11 +136,12 @@ DOCKER_COMPOSE_ENV(){
         fi    
     fi
         echo
-    done                
+   done         
     #Create docker directories      
     mkdir -p /opt/docker/{data,build,compose,setup}   
     cp $CURRENT_DIR/config/compose/dcompose.yml  $docker_compose
 }
+
 
 SET_ALIAS(){
     echo "alias dcup='docker-compose -f /opt/docker/compose/dcompose.yml up -d'" >> ~/.bashrc
